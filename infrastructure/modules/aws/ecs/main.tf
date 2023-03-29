@@ -21,9 +21,9 @@ resource "aws_iam_role_policy_attachment" "task_exec" {
 }
 
 resource "aws_iam_policy" "ssm" {
-  name   = "${var.cluster_name}-${var.task_name}--task-execution-ssm-policy"
+  name = "${var.cluster_name}-${var.task_name}--task-execution-ssm-policy"
   policy = jsonencode({
-    "Version"   = "2012-10-17"
+    "Version" = "2012-10-17"
     "Statement" = [
       {
         "Effect" = "Allow"
@@ -71,12 +71,12 @@ resource "aws_ecs_task_definition" "main" {
       },
       "secrets": ${jsonencode(var.app_environments_vars)},
       "environment": ${jsonencode(var.app_environments_vars_normal)},
-      "portMappings": %{ if var.schedule_task == 1 }[]%{ else }[
+      "portMappings": %{if var.schedule_task == 1}[]%{else}[
         {
           "containerPort": ${var.port},
           "hostPort": ${var.port}
         }
-      ]%{ endif }
+      ]%{endif}
     }
   ]
   EOF
@@ -89,11 +89,10 @@ locals {
 }
 
 resource "aws_ecs_service" "main" {
-  count           = var.schedule_task == 1 ? 0 : 1
   name            = "${var.cluster_name}-${var.task_name}-service"
   cluster         = var.cluster_id
   task_definition = aws_ecs_task_definition.main.arn
-  desired_count   = 1
+  desired_count   = 2
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -110,6 +109,6 @@ resource "aws_ecs_service" "main" {
       container_port   = var.port
     }
   }
+
   depends_on = [local.ecs_depends_on]
 }
-

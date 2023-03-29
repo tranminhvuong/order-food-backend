@@ -27,7 +27,6 @@ variable "allow_security_group_ids" {
 variable "aws_account_id" {
   type        = string
   description = "aws_account_id"
-  default     = "315438660929"
 }
 
 variable "aws_region" {
@@ -49,11 +48,6 @@ variable "public_subnet_ids" {
 variable "private_subnet_ids" {
   type        = list(string)
   description = "List private subnets"
-}
-
-variable "base_domain" {
-  type        = string
-  description = "dev.teadao.money"
 }
 
 variable "api_port" {

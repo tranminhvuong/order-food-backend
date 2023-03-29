@@ -1,0 +1,18 @@
+This project is generate when using Nodejs version 16.14.2 and NPM version 7.17.0
+
+To start the source please follow
+1. Run "npm install" for install nodejs libraries and dependencies
+2. Run "npm start" to start the local server
+3. Run "npm run build" to build the source
+
+Note: please check for env file before run (fill missing AWS DynamoDB config)
+
+==============================================
+Config folder (path: src\app\config): Use for storing all of the config that get from env file
+Group (Module) folder (path: example as src\app\users): For not businesses not relevevant to each other please seperate it into a group
+DTO folder (path: example as src\app\users\dto): For storing all of the DTO that use for controller request and response type. Please note that each request or reponse DTO should be a individual file for easier to handle.
+Interface folder (path: example as src\app\users\interface): For storing all of the interfaces of the input and output types of services. We can dump all of the relevant types of all revelenvent service into one file for easier to handle because interface is simplier than DTO
+Test file (path: example as src\app\users\users.controller.spec.ts): Use for test declaration of an API, function (service)
+Controller file (path: example as src\app\users\users.controller.ts): Use for declare a group of APIs
+Module file (path: example as src\app\users\users.module.ts): Use for declare a module and it's resources
+Service file (path: example as src\app\users\users.service.ts): Use for declare services (function) for Controller to use to create APIs

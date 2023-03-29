@@ -1,5 +1,22 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src"
+  "sourceRoot": "app",
+  "monorepo": true,
+  "root": "./",
+  "compilerOptions": {
+    "webpack": false,
+    "tsConfigPath": "tsconfig.build.json"
+  },
+  "projects": {
+    "app": {
+      "type": "application",
+      "root": "app",
+      "entryFile": "main",
+      "sourceRoot": "app",
+      "compilerOptions": {
+        "tsConfigPath": "tsconfig.build.json"
+      }
+    }
+  }
 }
