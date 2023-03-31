@@ -17,11 +17,10 @@ resource "aws_security_group" "order_food_codebuild_sg" {
   vpc_id = local.vpc_id
 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+    from_port   = "0"
+    to_port     = "0"
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -99,7 +98,11 @@ data "aws_iam_policy_document" "example" {
       test     = "StringEquals"
       variable = "ec2:Subnet"
 
-      values = local.build_subnets
+      values = [
+        "arn:aws:ec2:ap-northeast-1:715915800849:subnet/subnet-08f6d526a5204c145",
+        "arn:aws:ec2:ap-northeast-1:715915800849:subnet/subnet-011271d34de30ebed",
+        "arn:aws:ec2:ap-northeast-1:715915800849:subnet/subnet-04a1b10795c0b4b07"
+      ]
     }
 
     condition {
@@ -134,10 +137,6 @@ resource "aws_codebuild_project" "codebuild_project" {
     location = aws_s3_bucket.codebuild_cache.id
   }
 
-  cache {
-    type     = "S3"
-    location = "${aws_s3_bucket.codebuild_cache.id}/cache"
-  }
 
   environment {
     compute_type                = "BUILD_GENERAL1_SMALL"
@@ -180,11 +179,6 @@ resource "aws_codebuild_project" "codebuild_project" {
     cloudwatch_logs {
       group_name  = "log-group"
       stream_name = "log-stream"
-    }
-
-    s3_logs {
-      status   = "ENABLED"
-      location = "${aws_s3_bucket.codebuild_cache.id}/build-log"
     }
   }
 
