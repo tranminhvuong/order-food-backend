@@ -133,8 +133,7 @@ resource "aws_codebuild_project" "codebuild_project" {
   service_role  = aws_iam_role.codebuild_role.arn
 
   artifacts {
-    type     = "S3"
-    location = aws_s3_bucket.codebuild_cache.id
+    type = "CODEPIPELINE"
   }
 
 
@@ -183,13 +182,7 @@ resource "aws_codebuild_project" "codebuild_project" {
   }
 
   source {
-    type            = "GITHUB"
-    location        = local.github_source
-    git_clone_depth = 1
-
-    git_submodules_config {
-      fetch_submodules = true
-    }
+    type = "CODEPIPELINE"
   }
 
   source_version = local.environment
