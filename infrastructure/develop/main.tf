@@ -77,13 +77,6 @@ resource "aws_ssm_parameter" "env_aws_region" {
   value       = local.aws_region
 }
 
-# resource "aws_ssm_parameter" "env_bucket_name" {
-#   name        = "/${local.project}/${local.environment}/fastapi/bucket_name"
-#   description = "The parameter description"
-#   type        = "SecureString"
-#   value       = aws_s3_bucket.order_food_storage.bucket
-# }
-
 #--------------------------------------------------------------
 # Start order_food API
 #--------------------------------------------------------------
@@ -129,6 +122,7 @@ module "order_food_develop_alb" {
     }
   ]
 }
+
 module "order_food_api_ecs" {
   source                = "../modules/aws/ecs"
   cluster_name          = aws_ecs_cluster.main.name
@@ -173,23 +167,77 @@ module "order_food_api_cloudfront" {
   environment = local.environment
 }
 
+#--------------------------------------------------------------
+# DynamoDB
+#--------------------------------------------------------------
+resource "aws_dynamodb_table" "order_food_dynamodb" {
+  name         = "${local.project}-${local.environment}-vehicle-status"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "id"
+  range_key    = "get_time"
 
+  attribute {
+    name = "id"
+    type = "S"
+  }
 
+  attribute {
+    name = "get_time"
+    type = "S"
+  }
 
-# resource "aws_s3_bucket" "order_food_storage" {
-#   bucket = "${local.project}-${local.environment}-storage"
-# }
-# resource "aws_s3_bucket_acl" "order_food_storage_bucket_acl" {
-#   bucket = aws_s3_bucket.order_food_storage.id
-#   acl    = "public-read"
-# }
-# resource "aws_s3_bucket_cors_configuration" "order_food_storage_bucket_cors" {
-#   bucket = aws_s3_bucket.order_food_storage.id
+  point_in_time_recovery {
+    enabled = true
+  }
+}
 
-#   cors_rule {
-#     allowed_headers = ["*"]
-#     allowed_methods = ["GET", "PUT", "POST", "DELETE", "HEAD"]
-#     allowed_origins = ["*"]
-#     max_age_seconds = 3000
-#   }
-# }
+#--------------------------------------------------------------
+# IoT core
+#--------------------------------------------------------------
+module "order_food_iot_core" {
+  source             = "../modules/aws/iot_core"
+  project            = local.project
+  environment        = local.environment
+  cloudfront_api_url = module.order_food_api_cloudfront.cloudfront_url
+}
+
+module "order_food_cognito_identity_pool" {
+  source      = "../modules/aws/cognito/identity"
+  project     = local.project
+  environment = local.environment
+  iot_arn     = module.order_food_iot_core.arn
+}
+
+#--------------------------------------------------------------
+# CICD module
+#--------------------------------------------------------------
+module "order_food_codebuild" {
+  source                 = "../modules/aws/codebuild"
+  project                = local.project
+  environment            = local.environment
+  vpc_id                 = var.vpc_id
+  build_subnets          = local.public_subnet_ids
+  account_id             = var.aws_account_id
+  github_source          = var.github_source
+  region                 = var.aws_region
+  aws_ecr_repository     = module.order_food_api_ecr.ecr_repo
+  aws_ecr_registry       = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com"
+  aws_ecs_container_name = "${aws_ecs_cluster.main.name}-api-service-app"
+  aws_ecs_task_name      = "${aws_ecs_cluster.main.name}-api-service-task"
+}
+
+module "order_food_codepipeline" {
+  source      = "../modules/aws/codepipeline"
+  project     = local.project
+  environment = local.environment
+  bucket_arn  = module.order_food_codebuild.s3_build_bucket_arn
+  bucket_name = module.order_food_codebuild.s3_build_bucket
+
+  codestar_connection_arn = var.codestar_connection_arn
+  full_repository_id      = var.full_repository_id
+  cluster_name            = module.order_food_api_ecs.ecs_cluster
+  service_name            = module.order_food_api_ecs.ecs_service_name
+  depends_on = [
+    module.order_food_codebuild
+  ]
+}

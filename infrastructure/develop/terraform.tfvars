@@ -17,3 +17,5 @@ private_subnet_ids = [
   "subnet-024f85c47d3ada320",
 ]
 allow_security_group_ids = []
+
+github_source = "https://github.com/tranminhvuong/order-food-backend.git"

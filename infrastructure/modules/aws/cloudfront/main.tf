@@ -23,17 +23,12 @@ resource "aws_cloudfront_distribution" "alb_distribution" {
   # AWS Managed Caching Polify (CachingDisabled)
   default_cache_behavior {
     # Using the CachingDisabled managed policy ID:
-    allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    viewer_protocol_policy = "redirect-to-https"
-    cached_methods         = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id       = local.domain_name
-    forwarded_values {
-      headers      = []
-      query_string = true
-      cookies {
-        forward = "all"
-      }
-    }
+    allowed_methods            = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    viewer_protocol_policy     = "redirect-to-https"
+    cache_policy_id            = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+    cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id           = local.domain_name
+    response_headers_policy_id = "60669652-455b-4ae9-85a4-c4c02393f86c"
   }
   restrictions {
     geo_restriction {

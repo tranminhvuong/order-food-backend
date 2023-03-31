@@ -20,5 +20,14 @@ output "main" {
     load_balancer = {
       domain_name = module.order_food_develop_alb.lb_dns_name
     }
+    iot = {
+      thing_arn       = module.order_food_iot_core.arn
+      public_key      = module.order_food_iot_core.public_key
+      private_key     = module.order_food_iot_core.private_key
+      certificate_pem = module.order_food_iot_core.certificate_pem
+
+    }
+    cognito_identity_pool_id = module.order_food_cognito_identity_pool.identity_pool_id
   }
+  sensitive = true
 }

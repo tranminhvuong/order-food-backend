@@ -13,3 +13,11 @@ output "task_definition_arn" {
 output "ecs_task_exec_role_arn" {
   value = aws_iam_role.ecs_task_exec_role.arn
 }
+
+output "ecs_cluster" {
+  value = aws_ecs_service.main.cluster
+}
+
+output "ecs_service_name" {
+  value = aws_ecs_service.main.name
+}

@@ -89,3 +89,17 @@ variable "env_aws_secret_key" {
   type    = string
   default = "test"
 }
+
+variable "github_source" {
+  type = string
+}
+
+variable "codestar_connection_arn" {
+  type    = string
+  default = "arn:aws:codestar-connections:ap-southeast-1:715915800849:connection/3415d239-2bc9-49c3-b15c-b7caec0df181"
+}
+
+variable "full_repository_id" {
+  type    = string
+  default = "tranminhvuong/order-food-backend"
+}
