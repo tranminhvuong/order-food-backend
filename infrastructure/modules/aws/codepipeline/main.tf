@@ -63,6 +63,15 @@ data "aws_iam_policy_document" "codepipeline_policy_data" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecs:*"
+    ]
+    resources = ["*"]
+  }
+
   statement {
     effect = "Allow"
     actions = [
