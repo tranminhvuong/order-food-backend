@@ -1,7 +1,7 @@
 ###################
 # BUILD FOR LOCAL DEVELOPMENT
 ###################
-FROM node:14-alpine As development
+FROM node:16-alpine As development
 # Create app directory
 WORKDIR /usr/src/app
 RUN chown -R node:node /usr/src/app
@@ -18,7 +18,7 @@ EXPOSE 3000
 ###################
 # BUILD FOR PRODUCTION
 ###################
-FROM node:14-alpine As build
+FROM node:16-alpine As build
 WORKDIR /usr/src/app
 COPY --chown=node:node package*.json ./
 COPY --chown=node:node yarn.lock ./
@@ -38,7 +38,7 @@ USER node
 ###################
 # PRODUCTION
 ###################
-FROM node:14-alpine As production
+FROM node:16-alpine As production
 USER node
 WORKDIR /usr/src/app
 # Copy the bundled code from the build stage to the production image
