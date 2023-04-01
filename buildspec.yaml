@@ -10,7 +10,7 @@ phases:
   install:
     on-failure: ABORT
     runtime-versions:
-      nodejs: 14
+      nodejs: 14.x
     commands:
       - yarn
   pre_build:
