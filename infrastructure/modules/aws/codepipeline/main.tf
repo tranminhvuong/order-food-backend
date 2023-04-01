@@ -7,6 +7,7 @@ locals {
   full_repository_id      = var.full_repository_id
   cluster_name            = var.cluster_name
   service_name            = var.service_name
+  project_name            = var.project_name
 }
 
 data "aws_iam_policy_document" "codepipeline_policy_data" {
@@ -19,6 +20,8 @@ data "aws_iam_policy_document" "codepipeline_policy_data" {
       "s3:GetBucketVersioning",
       "s3:PutObjectAcl",
       "s3:PutObject",
+      "iam:GetRole",
+      "iam:PassRole"
     ]
 
     resources = [
@@ -47,11 +50,27 @@ data "aws_iam_policy_document" "codepipeline_policy_data" {
 
   statement {
     effect = "Allow"
-
+    actions = [
+      "codebuild:BatchGetBuilds",
+      "codebuild:StartBuild"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    effect = "Allow"
     actions = [
       "codepipeline:*"
     ]
-
+    resources = ["*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "cloudformation:DescribeStacks",
+      "kms:GenerateDataKey",
+      "iam:GetRole",
+      "iam:PassRole"
+    ]
     resources = ["*"]
   }
 }
@@ -113,7 +132,7 @@ resource "aws_codepipeline" "main" {
       input_artifacts  = ["source_output"]
       output_artifacts = ["build_output"]
       configuration = {
-        ProjectName = "${local.project}_${local.environment}"
+        ProjectName = local.project_name
       }
 
     }

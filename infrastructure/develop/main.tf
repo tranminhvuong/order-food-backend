@@ -211,6 +211,15 @@ module "order_food_cognito_identity_pool" {
 #--------------------------------------------------------------
 # CICD module
 #--------------------------------------------------------------
+resource "aws_s3_bucket" "codepipeline_bucket" {
+  bucket = "${local.project}-${local.environment}-codepipeline-bucket"
+}
+
+resource "aws_s3_bucket_acl" "codepipeline_bucket_acl" {
+  bucket = aws_s3_bucket.codepipeline_bucket.id
+  acl    = "private"
+}
+
 module "order_food_codebuild" {
   source                 = "../modules/aws/codebuild"
   project                = local.project
@@ -224,20 +233,19 @@ module "order_food_codebuild" {
   aws_ecr_registry       = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com"
   aws_ecs_container_name = "${aws_ecs_cluster.main.name}-api-service-app"
   aws_ecs_task_name      = "${aws_ecs_cluster.main.name}-api-service-task"
+  bucket_arn             = aws_s3_bucket.codepipeline_bucket.arn
+  codepipeline_bucket    = aws_s3_bucket.codepipeline_bucket.id
 }
 
 module "order_food_codepipeline" {
-  source      = "../modules/aws/codepipeline"
-  project     = local.project
-  environment = local.environment
-  bucket_arn  = module.order_food_codebuild.s3_build_bucket_arn
-  bucket_name = module.order_food_codebuild.s3_build_bucket
-
+  source                  = "../modules/aws/codepipeline"
+  project                 = local.project
+  environment             = local.environment
+  bucket_arn              = aws_s3_bucket.codepipeline_bucket.arn
+  bucket_name             = aws_s3_bucket.codepipeline_bucket.id
   codestar_connection_arn = var.codestar_connection_arn
   full_repository_id      = var.full_repository_id
   cluster_name            = module.order_food_api_ecs.ecs_cluster
   service_name            = module.order_food_api_ecs.ecs_service_name
-  depends_on = [
-    module.order_food_codebuild
-  ]
+  project_name            = module.order_food_codebuild.codebuild_project
 }

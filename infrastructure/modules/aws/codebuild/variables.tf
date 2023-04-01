@@ -41,3 +41,12 @@ variable "aws_ecs_container_name" {
 variable "aws_ecs_task_name" {
   type = string
 }
+
+
+variable "codepipeline_bucket" {
+  type = string
+}
+
+variable "bucket_arn" {
+  type = string
+}

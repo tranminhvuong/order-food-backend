@@ -24,15 +24,6 @@ resource "aws_security_group" "order_food_codebuild_sg" {
   }
 }
 
-resource "aws_s3_bucket" "codebuild_cache" {
-  bucket = "${local.project}-${local.environment}-codebuild-cache"
-}
-
-resource "aws_s3_bucket_acl" "codebuild_cache_acl" {
-  bucket = aws_s3_bucket.codebuild_cache.id
-  acl    = "private"
-}
-
 resource "aws_s3_bucket" "codebuild_config_environment" {
   bucket = "${local.project}-${local.environment}-codebuild-config-environment"
 }
@@ -52,6 +43,7 @@ data "aws_iam_policy_document" "assume_role" {
     }
 
     actions = ["sts:AssumeRole"]
+    sid     = "TrustPolicyStatementThatAllowsEC2ServiceToAssumeTheAttachedRole"
   }
 }
 
@@ -75,7 +67,6 @@ data "aws_iam_policy_document" "example" {
 
   statement {
     effect = "Allow"
-
     actions = [
       "ec2:CreateNetworkInterface",
       "ec2:DescribeDhcpOptions",
@@ -85,7 +76,22 @@ data "aws_iam_policy_document" "example" {
       "ec2:DescribeSecurityGroups",
       "ec2:DescribeVpcs",
     ]
+    resources = ["*"]
+  }
 
+  statement {
+    effect    = "Allow"
+    actions   = ["ecr:*"]
+    resources = ["*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecs:UpdateService",
+      "iam:GetRole",
+      "iam:PassRole"
+    ]
     resources = ["*"]
   }
 
@@ -113,10 +119,15 @@ data "aws_iam_policy_document" "example" {
   }
 
   statement {
-    effect  = "Allow"
-    actions = ["s3:*"]
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:GetBucketVersioning"
+    ]
     resources = [
-      "arn:aws:s3:::*"
+      "arn:aws:s3:::${var.codepipeline_bucket}",
+      "arn:aws:s3:::${var.codepipeline_bucket}/*"
     ]
   }
 }
@@ -187,13 +198,8 @@ resource "aws_codebuild_project" "codebuild_project" {
 
   source_version = local.environment
 
-  vpc_config {
-    vpc_id             = local.vpc_id
-    subnets            = local.build_subnets
-    security_group_ids = [aws_security_group.order_food_codebuild_sg.id]
-  }
-
   tags = {
     Environment = "Test"
   }
 }
+

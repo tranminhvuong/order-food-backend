@@ -29,3 +29,7 @@ variable "cluster_name" {
 variable "service_name" {
   type = string
 }
+
+variable "project_name" {
+  type = string
+}
