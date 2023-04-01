@@ -34,6 +34,6 @@ phases:
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
-      - echo '[{"name":"${AWS_ECS_CONTAINER_NAME}","imageUri":"${REPOSITORY_URI}:${IMAGE_TAG}"}]' > imagedefinitions.json
+      - echo '[{"name":"${AWS_ECS_CONTAINER_NAME}","imageUri":"$REPOSITORY_URI:$IMAGE_TAG"}]' > imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
