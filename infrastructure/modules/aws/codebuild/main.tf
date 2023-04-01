@@ -122,12 +122,15 @@ data "aws_iam_policy_document" "example" {
     effect = "Allow"
     actions = [
       "s3:GetObject",
+      "s3:ListObject",
       "s3:GetObjectVersion",
       "s3:GetBucketVersioning"
     ]
     resources = [
       "arn:aws:s3:::${var.codepipeline_bucket}",
-      "arn:aws:s3:::${var.codepipeline_bucket}/*"
+      "arn:aws:s3:::${var.codepipeline_bucket}/*",
+      "arn:aws:s3:::${aws_s3_bucket.codebuild_config_environment.id}/*",
+      "arn:aws:s3:::${aws_s3_bucket.codebuild_config_environment.id}"
     ]
   }
 }
