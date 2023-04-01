@@ -123,6 +123,8 @@ data "aws_iam_policy_document" "example" {
     actions = [
       "s3:GetObject",
       "s3:ListObject",
+      "s3:PushObject",
+      "s3:PutObject",
       "s3:GetObjectVersion",
       "s3:GetBucketVersioning"
     ]
